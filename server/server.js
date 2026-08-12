@@ -1,12 +1,13 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const weatherService = require('./services/weatherService');
 const quotesService = require('./services/quotesService');
-
-dotenv.config();
+const redisClient = require('./config/redisClient');
 
 const app = express();
 
