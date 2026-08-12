@@ -21,6 +21,8 @@ app.use('/services/quotes', quotesService);
 const verifyApiKey = require('./middleware/verifyApiKey');
 const checkRateLimit = require('./middleware/checkRateLimit');
 
+const gatewayRoutes = require('./routes/gatewayRoutes');
+app.use('/gateway', gatewayRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Gateway server is alive' });
