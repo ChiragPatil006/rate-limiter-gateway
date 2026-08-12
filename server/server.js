@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const weatherService = require('./services/weatherService');
 const quotesService = require('./services/quotesService');
 const redisClient = require('./config/redisClient');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/services/weather', weatherService);
 app.use('/services/quotes', quotesService);
+app.use('/api/analytics', analyticsRoutes);
 
 // for test purpose
 const verifyApiKey = require('./middleware/verifyApiKey');
