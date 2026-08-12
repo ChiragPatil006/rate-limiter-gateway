@@ -9,28 +9,33 @@ const algorithms = {
   token: isAllowedTokenBucket
 };
 
-const ACTIVE_ALGORITHM = 'token';
+const DEFAULT_ALGORITHM = 'token';
 
 const checkRateLimit = async (req, res, next) => {
   const startTime = Date.now();
   try {
     const apiKey = req.gatewayUser.apiKey;
 
-    const isAllowedFn = algorithms[ACTIVE_ALGORITHM];
+    // Read algorithm choice from header, fall back to default if not provided
+    const requestedAlgorithm = req.headers['x-algorithm'];
+    const activeAlgorithm = algorithms[requestedAlgorithm] ? requestedAlgorithm : DEFAULT_ALGORITHM;
+
+    const isAllowedFn = algorithms[activeAlgorithm];
     const allowed = await isAllowedFn(apiKey);
 
     if (!allowed) {
-      // Log the blocked attempt before responding
       await logRequest({
         apiKey,
         endpoint: req.params.serviceName || 'unknown',
-        algorithm: ACTIVE_ALGORITHM,
+        algorithm: activeAlgorithm,
         status: 'blocked',
         startTime
       });
-
       return res.status(429).json({ message: 'Rate limit exceeded. Try again later.' });
     }
+
+    // Also useful for the gateway route's own logging of allowed requests
+    req.activeAlgorithm = activeAlgorithm;
 
     next();
   } catch (err) {

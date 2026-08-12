@@ -29,7 +29,7 @@ router.all('/:serviceName', verifyApiKey, checkRateLimit, async (req, res) => {
     await logRequest({
       apiKey: req.gatewayUser.apiKey,
       endpoint: serviceName,
-      algorithm: 'token', // matches ACTIVE_ALGORITHM in checkRateLimit.js for now
+      algorithm: req.activeAlgorithm,
       status: 'allowed',
       startTime
     });
