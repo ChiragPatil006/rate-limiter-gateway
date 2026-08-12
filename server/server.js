@@ -17,6 +17,11 @@ app.use('/api/auth', authRoutes);
 app.use('/services/weather', weatherService);
 app.use('/services/quotes', quotesService);
 
+// for test purpose
+const verifyApiKey = require('./middleware/verifyApiKey');
+const checkRateLimit = require('./middleware/checkRateLimit');
+
+
 app.get('/', (req, res) => {
   res.json({ message: 'Gateway server is alive' });
 });
