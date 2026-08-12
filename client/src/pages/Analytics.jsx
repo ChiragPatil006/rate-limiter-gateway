@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 
-const COLORS = { allowed: '#28a745', blocked: '#dc3545' };
+const COLORS = { allowed: '#5EEAD4', blocked: '#FB7185' };
 
 const Analytics = () => {
   const { apiKey } = useAuth();
@@ -29,71 +29,72 @@ const Analytics = () => {
     fetchAnalytics();
   }, [apiKey]);
 
-  if (loading) return <p>Loading analytics...</p>;
+  if (loading) return <p>Loading analytics…</p>;
   if (!data) return <p>Failed to load analytics.</p>;
 
-  const pieData = data.statusCounts.map((item) => ({
-    name: item._id,
-    value: item.count
-  }));
-
-  const lineData = data.requestsOverTime.map((item) => ({
-    time: item._id,
-    requests: item.count
-  }));
+  const pieData = data.statusCounts.map((item) => ({ name: item._id, value: item.count }));
+  const lineData = data.requestsOverTime.map((item) => ({ time: item._id, requests: item.count }));
 
   return (
     <div>
+      <div className="eyebrow">Insights</div>
       <h2>Analytics</h2>
+      <p style={{ marginBottom: 24 }}>Aggregated view of your gateway traffic.</p>
 
-      <h3>Requests Over Time</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={lineData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="requests" stroke="#007bff" />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="card">
+        <div className="eyebrow">Requests over time</div>
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={lineData}>
+            <CartesianGrid stroke="#232E3F" strokeDasharray="3 3" />
+            <XAxis dataKey="time" stroke="#57647A" fontSize={11} />
+            <YAxis allowDecimals={false} stroke="#57647A" fontSize={11} />
+            <Tooltip contentStyle={{ background: '#121A26', border: '1px solid #232E3F', borderRadius: 8 }} />
+            <Legend />
+            <Line type="monotone" dataKey="requests" stroke="#7C9CFF" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
-      <h3>Allowed vs Blocked</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={100} label>
-            {pieData.map((entry, index) => (
-              <Cell key={index} fill={COLORS[entry.name] || '#999'} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="card">
+        <div className="eyebrow">Allowed vs blocked</div>
+        <ResponsiveContainer width="100%" height={280}>
+          <PieChart>
+            <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={95} label>
+              {pieData.map((entry, index) => (
+                <Cell key={index} fill={COLORS[entry.name] || '#999'} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={{ background: '#121A26', border: '1px solid #232E3F', borderRadius: 8 }} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
 
-      <h3>Recent Requests</h3>
-      <table border="1" cellPadding="6" style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Endpoint</th>
-            <th>Algorithm</th>
-            <th>Status</th>
-            <th>Response Time (ms)</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.recentRequests.map((req) => (
-            <tr key={req._id}>
-              <td>{req.endpoint}</td>
-              <td>{req.algorithm}</td>
-              <td>{req.status}</td>
-              <td>{req.responseTimeMs}</td>
-              <td>{new Date(req.timestamp).toLocaleTimeString()}</td>
+      <div className="card">
+        <div className="eyebrow">Recent requests</div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th><th>Algorithm</th><th>Status</th><th>Latency</th><th>Time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.recentRequests.map((req) => (
+              <tr key={req._id}>
+                <td className="mono">{req.endpoint}</td>
+                <td className="mono">{req.algorithm}</td>
+                <td>
+                  <span className={`badge ${req.status === 'allowed' ? 'badge-allowed' : 'badge-blocked'}`}>
+                    {req.status}
+                  </span>
+                </td>
+                <td className="mono">{req.responseTimeMs}ms</td>
+                <td className="mono">{new Date(req.timestamp).toLocaleTimeString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
